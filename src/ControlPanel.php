@@ -19,7 +19,10 @@ class ControlPanel
     public function configureApplication(): void
     {
         Http::controlPanel()->post('settings', [
-            'environment' => app()->environment(),
+            'environment' => config('app.env'),
+            'url' => config('control-panel.app-url'),
+            'name' => config('app.name'),
+            'version' => app()->version(),
             'schedules' => $this->eventService->schedules(),
         ]);
     }

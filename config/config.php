@@ -2,6 +2,7 @@
 
 return [
     'url' => env('CONTROL_PANEL_URL'),
+    'app-url' => env('CONTROL_PANEL_APP_URL', config('app.url')),
 
     'events' => [
         'paused' => [

@@ -2,6 +2,7 @@
 
 namespace HatHatch\LaravelControlPanel;
 
+use HatHatch\LaravelControlPanel\Traits\EventPrintable;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Http;
 
 class EventService
 {
+    use EventPrintable;
+
     public function __construct(
         protected Schedule $schedule,
     ) {}
@@ -31,8 +34,8 @@ class EventService
     {
         return collect($this->schedule->events())
             ->map(fn (Event $event) => [
-                'expression' => $event->expression,
-                'command' => $event->normalizeCommand($event->command ?? ''),
+                'command' => $this->normalizeEvent($event),
+                'mutex_name' => $event->mutexName(),
             ])
             ->values();
     }

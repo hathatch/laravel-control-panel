@@ -17,9 +17,10 @@ class ControlPanelServiceProvider extends ServiceProvider
     {
         //        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'control-panel');
 
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
+
         //        if (config('control-panel.ui.enabled')) {
         //            $this->loadViewsFrom(__DIR__.'/../resources/views', 'control-panel');
-        //            $this->loadRoutesFrom(__DIR__.'/routes.php');
         //
         //            Livewire::component('control-panel-component', ScheduleManagerComponent::class);
         //        }
