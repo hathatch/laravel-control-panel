@@ -21,7 +21,7 @@ class EventService
         $pausedEvents = \Cache::remember(
             config('control-panel.events.paused.cache_key'),
             now()->addMinutes(config('control-panel.events.paused.cache_ttl')),
-            fn () => Http::controlPanel()->get('paused-events')->json()
+            fn () => Http::controlPanel()->get('paused-schedules', ['environment' => config('app.env')])->json()
         );
 
         return in_array(

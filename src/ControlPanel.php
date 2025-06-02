@@ -33,19 +33,14 @@ class ControlPanel
 
     public static function measure(string $name, int $amount = 1): void
     {
-        if ($name === 'exceptions') {
-            return;
-        }
-
         $measurementService = self::$measurementService ??= new MeasurementService;
         $measurementService->addDataPoint($name, $amount);
     }
 
     public static function handles(Exceptions $exceptions): void
     {
-        $measurementService = self::$measurementService ??= new MeasurementService;
-        $exceptions->reportable(static function (Throwable $exception) use ($measurementService) {
-            $measurementService->addDataPoint('exceptions');
+        $exceptions->reportable(static function (Throwable $exception) {
+            self::measure('exceptions');
         });
     }
 }

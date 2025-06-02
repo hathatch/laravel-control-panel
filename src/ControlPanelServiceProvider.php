@@ -5,6 +5,10 @@ namespace HatHatch\LaravelControlPanel;
 use HatHatch\LaravelControlPanel\Commands\ControlPanelOptimize;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobQueued;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 
@@ -61,6 +65,17 @@ class ControlPanelServiceProvider extends ServiceProvider
                 });
             }
         }
+
+        Event::listen(JobQueued::class, function (JobQueued $event) {
+            ControlPanel::measure('pending-jobs');
+        });
+        Event::listen(JobProcessed::class, function (JobProcessed $event) {
+            ControlPanel::measure('pending-jobs', -1);
+        });
+        Event::listen(JobFailed::class, function (JobFailed $event) {
+            ControlPanel::measure('pending-jobs', -1);
+            ControlPanel::measure('failed-jobs');
+        });
     }
 
     /**
@@ -78,8 +93,7 @@ class ControlPanelServiceProvider extends ServiceProvider
 
         $this->app->singleton('control-panel', function (Application $app) {
             return new ControlPanel(
-                $app->make(EventService::class),
-                $app->make(MeasurementService::class)
+                $app->make(EventService::class)
             );
         });
     }

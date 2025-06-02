@@ -13,14 +13,16 @@ class MeasurementService
 
     public function addDataPoint(string $name, int $amount = 1): void
     {
-        $measurements = Cache::store(config('control-panel.cache-store'))->get(self::CACHE_KEY, []);
-        $measurements[$name] = ($measurements[$name] ?? 0) + $amount;
+        defer(function () use ($name, $amount) {
+            $measurements = Cache::store(config('control-panel.cache-store'))->get(self::CACHE_KEY, []);
+            $measurements[$name] = ($measurements[$name] ?? 0) + $amount;
 
-        Cache::store(config('control-panel.cache-store'))->put(
-            self::CACHE_KEY,
-            $measurements,
-            Carbon::now()->addHours(2)
-        );
+            Cache::store(config('control-panel.cache-store'))->put(
+                self::CACHE_KEY,
+                $measurements,
+                Carbon::now()->addHours(2)
+            );
+        });
     }
 
     public function getDataPoints(): array
