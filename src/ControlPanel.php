@@ -53,7 +53,7 @@ class ControlPanel
         }
 
         if (! empty(config('horizon'))) {
-            return config('horizon.url', config('app.url').config('horizon.path'));
+            return config('horizon.url', trim(config('app.url'), '/').'/'.trim(config('horizon.path'), '/'));
         }
 
         return null;
