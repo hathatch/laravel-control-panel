@@ -12,4 +12,12 @@ return [
             'cache_ttl' => 5, // in minutes
         ],
     ],
+
+    'jobs' => [
+        'dashboard_url' => env('CONTROL_PANEL_JOBS_DASHBOARD_URL'),
+    ],
+
+    'exceptions' => [
+        'dashboard_url' => env('CONTROL_PANEL_EXCEPTIONS_DASHBOARD_URL'),
+    ],
 ];
