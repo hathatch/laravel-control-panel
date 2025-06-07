@@ -93,7 +93,8 @@ class ControlPanelServiceProvider extends ServiceProvider
 
         $this->app->singleton('control-panel', function (Application $app) {
             return new ControlPanel(
-                $app->make(EventService::class)
+                $app->make(EventService::class),
+                $app->make(CommandService::class)
             );
         });
     }

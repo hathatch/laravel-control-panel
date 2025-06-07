@@ -13,6 +13,7 @@ class ControlPanel
 
     public function __construct(
         protected EventService $eventService,
+        protected CommandService $commandService,
     ) {}
 
     public function configureApplication(): void
@@ -25,6 +26,7 @@ class ControlPanel
             'jobs_dashboard_url' => $this->getJobsDashboardUrl(),
             'exceptions_dashboard_url' => $this->getExceptionsDashboardUrl(),
             'schedules' => $this->eventService->schedules(),
+            'commands' => $this->commandService->commands(),
         ]);
     }
 
