@@ -3,8 +3,19 @@
 namespace HatHatch\LaravelControlPanel;
 
 use HatHatch\LaravelControlPanel\Commands\ControlPanelOptimize;
+use HatHatch\LaravelControlPanel\Listeners\CommandStartingListener;
+use HatHatch\LaravelControlPanel\Listeners\GateEvaluatedListener;
+use HatHatch\LaravelControlPanel\Listeners\JobFailedListener;
+use HatHatch\LaravelControlPanel\Listeners\JobProcessedListener;
+use HatHatch\LaravelControlPanel\Listeners\JobQueuedListener;
+use HatHatch\LaravelControlPanel\Listeners\QueryExecutedListener;
+use HatHatch\LaravelControlPanel\Listeners\ResponseReceivedListener;
+use Illuminate\Auth\Access\Events\GateEvaluated;
+use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobQueued;
@@ -17,21 +28,9 @@ class ControlPanelServiceProvider extends ServiceProvider
     /**
      * Bootstrap the application services.
      */
-    public function boot(Schedule $schedule, ControlPanel $scheduleManager): void
+    public function boot(): void
     {
-        //        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'control-panel');
-
         $this->loadRoutesFrom(__DIR__.'/routes.php');
-
-        //        if (config('control-panel.ui.enabled')) {
-        //            $this->loadViewsFrom(__DIR__.'/../resources/views', 'control-panel');
-        //
-        //            Livewire::component('control-panel-component', ScheduleManagerComponent::class);
-        //        }
-
-        //        if (config('control-panel.driver') === 'database') {
-        //            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        //        }
 
         Http::macro('controlPanel', function () {
             return Http::baseUrl(config('control-panel.url'));
@@ -50,32 +49,23 @@ class ControlPanelServiceProvider extends ServiceProvider
                 __DIR__.'/../config/config.php' => config_path('control-panel.php'),
             ], ['config', 'control-panel', 'control-panel-config']);
 
-            //            $this->publishes([
-            //                __DIR__.'/../public/vendor/control-panel/assets' => public_path('vendor/control-panel/assets'),
-            //                __DIR__.'/../public/vendor/control-panel/manifest.json' => public_path('vendor/control-panel/manifest.json'),
-            //            ], ['assets', 'control-panel', 'control-panel-assets']);
-
-            //            $this->publishes([
-            //                __DIR__.'/../resources/lang' => resource_path('lang/vendor/control-panel'),
-            //            ], ['lang', 'control-panel', 'control-panel-lang']);
-
-            foreach ($schedule->events() as $event) {
-                $event->when(function () use ($event, $scheduleManager) {
-                    return $scheduleManager->shouldRunEvent($event);
-                });
-            }
+            Event::listen(CommandStarting::class, CommandStartingListener::class);
         }
 
-        Event::listen(JobQueued::class, function (JobQueued $event) {
-            ControlPanel::measure('pending-jobs');
-        });
-        Event::listen(JobProcessed::class, function (JobProcessed $event) {
-            ControlPanel::measure('pending-jobs', -1);
-        });
-        Event::listen(JobFailed::class, function (JobFailed $event) {
-            ControlPanel::measure('pending-jobs', -1);
-            ControlPanel::measure('failed-jobs');
-        });
+        if (config('control-panel.measurements.jobs.enabled')) {
+            Event::listen(JobQueued::class, JobQueuedListener::class);
+            Event::listen(JobProcessed::class, JobProcessedListener::class);
+            Event::listen(JobFailed::class, JobFailedListener::class);
+        }
+        if (config('control-panel.measurements.gates.enabled')) {
+            Event::listen(GateEvaluated::class, GateEvaluatedListener::class);
+        }
+        if (config('control-panel.measurements.requests.enabled')) {
+            Event::listen(RequestHandled::class, ResponseReceivedListener::class);
+        }
+        if (config('control-panel.measurements.queries.enabled')) {
+            Event::listen(QueryExecuted::class, QueryExecutedListener::class);
+        }
     }
 
     /**

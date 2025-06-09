@@ -6,19 +6,34 @@ return [
 
     'cache-store' => env('CONTROL_PANEL_CACHE_STORE', config('cache.default')),
 
+    'measurements' => [
+        'jobs' => [
+            'enabled' => env('CONTROL_PANEL_MEASUREMENTS_JOBS_ENABLED', true),
+        ],
+        'gates' => [
+            'enabled' => env('CONTROL_PANEL_MEASUREMENTS_GATES_ENABLED', true),
+        ],
+        'requests' => [
+            'enabled' => env('CONTROL_PANEL_MEASUREMENTS_REQUESTS_ENABLED', true),
+            'slow' => env('CONTROL_PANEL_MEASUREMENTS_REQUESTS_SLOW', 500), // in milliseconds
+        ],
+        'queries' => [
+            'enabled' => env('CONTROL_PANEL_MEASUREMENTS_QUERIES_ENABLED', true),
+            'slow' => env('CONTROL_PANEL_MEASUREMENTS_QUERIES_SLOW', 500), // in milliseconds
+        ],
+    ],
+
+    'dashboard' => [
+        'jobs' => env('CONTROL_PANEL_JOBS_DASHBOARD_URL'),
+        'exceptions' => env('CONTROL_PANEL_EXCEPTIONS_DASHBOARD_URL'),
+        'telescope' => env('CONTROL_PANEL_TELESCOPE_DASHBOARD_URL'),
+    ],
+
     'events' => [
         'paused' => [
             'cache_key' => 'control-panel-paused-events',
             'cache_ttl' => 5, // in minutes
         ],
-    ],
-
-    'jobs' => [
-        'dashboard_url' => env('CONTROL_PANEL_JOBS_DASHBOARD_URL'),
-    ],
-
-    'exceptions' => [
-        'dashboard_url' => env('CONTROL_PANEL_EXCEPTIONS_DASHBOARD_URL'),
     ],
 
     'commands' => [
@@ -108,6 +123,8 @@ return [
             'schedule:work',
             'serve',
             'stub:publish',
+            'telescope:install',
+            'telescope:publish',
             'test',
             'tinker',
             'vendor:publish',

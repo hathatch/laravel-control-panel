@@ -24,7 +24,7 @@ class EventService
             fn () => Http::controlPanel()->get('paused-schedules', ['environment' => config('app.env')])->json()
         );
 
-        return in_array(
+        return ! in_array(
             is_string($event) ? $event : $event->mutexName(),
             $pausedEvents
         );
@@ -38,5 +38,26 @@ class EventService
                 'mutex_name' => $event->mutexName(),
             ])
             ->values();
+    }
+
+    public function logRun(Event $event): void
+    {
+        Http::controlPanel()->post('schedule-runs', [
+            'mutex_name' => $event->mutexName(),
+            'output' => $this->getEventOutput($event),
+            'environment' => config('app.env'),
+        ]);
+    }
+
+    private function getEventOutput(Event $event): string
+    {
+        if (! $event->output ||
+            $event->output === $event->getDefaultOutput() ||
+            $event->shouldAppendOutput ||
+            ! file_exists($event->output)) {
+            return '';
+        }
+
+        return trim(file_get_contents($event->output));
     }
 }

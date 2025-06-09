@@ -25,6 +25,7 @@ class ControlPanel
             'version' => app()->version(),
             'jobs_dashboard_url' => $this->getJobsDashboardUrl(),
             'exceptions_dashboard_url' => $this->getExceptionsDashboardUrl(),
+            'telescope_dashboard_url' => $this->getTelescopeDashboardUrl(),
             'schedules' => $this->eventService->schedules(),
             'commands' => $this->commandService->commands(),
         ]);
@@ -50,8 +51,8 @@ class ControlPanel
 
     private function getJobsDashboardUrl()
     {
-        if (config('control-panel.jobs.dashboard_url')) {
-            return config('control-panel.jobs.dashboard_url');
+        if (config('control-panel.dashboard.jobs')) {
+            return config('control-panel.dashboard.jobs');
         }
 
         if (! empty(config('horizon'))) {
@@ -61,8 +62,21 @@ class ControlPanel
         return null;
     }
 
+    private function getTelescopeDashboardUrl()
+    {
+        if (config('control-panel.dashboard.telescope')) {
+            return config('control-panel.dashboard.telescope');
+        }
+
+        if (config('telescope.enabled')) {
+            return config('telescope.url', trim(config('app.url'), '/').'/'.trim(config('telescope.path'), '/'));
+        }
+
+        return null;
+    }
+
     private function getExceptionsDashboardUrl()
     {
-        return config('control-panel.exceptions.dashboard_url');
+        return config('control-panel.dashboard.exceptions');
     }
 }
